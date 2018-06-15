@@ -3,21 +3,20 @@
 1. cargo.toml anpassen
 ```cargo.toml
 [dependencies]
-chess-move-gen = "0.5.0"
+chess = "0.4.3"
 ```
 
 2. Zuggenerator einbinden
     1. Importierung
     ```rust 
-    extern crate chess_move_gen;
-    use chess_move_gen::*;
+    extern crate chess;
+    use chess::{ MoveGen, Board };
     ```
 
     2. Einbindung
     ```rust
-    let mut list = MoveVec::new();
-    let position = &Position::from_fen(&fen).unwrap();
-    legal_moves::<MoveVec>(position, &mut list);
+    let board = Board::from_fen(fen.to_owned()).unwrap();
+    let iterable = MoveGen::new(board, true);
     ```
     
 
@@ -25,11 +24,12 @@ chess-move-gen = "0.5.0"
 ```rust
 #[macro_use]
 extern crate neon;
-extern crate chess_move_gen;
+extern crate chess;
 
 use neon::vm::{Call, JsResult, This, FunctionCall};
 use neon::js::{JsString, Value};
-use chess_move_gen::*;
+
+use chess::{ MoveGen, Board };
 
 
 trait CheckArgument<'a> {
@@ -45,18 +45,30 @@ impl<'a, T: This> CheckArgument<'a> for FunctionCall<'a, T> {
 fn get_move(mut call: Call) -> JsResult<JsString> {
     let fen: String = call.check_argument::<JsString>(0)?.value();
 
-    let mut list = MoveVec::new();
-    let position = &Position::from_fen(&fen).unwrap();
-    legal_moves::<MoveVec>(position, &mut list);
+    let board = Board::from_fen(fen.to_owned()).unwrap();
+    let iterable = MoveGen::new(board, true);
 
-    for item in list.iter() {
-        println!("{:#?}", item);
+    let mut ret: String = "[".to_string();
+    let mut count: usize = 0;
+    let size: usize = iterable.len();
+
+    for item in iterable {
+        ret.push_str(&item.to_string());
+
+        if count < size - 1 {
+            ret.push_str(&", ");
+        }
+
+        count += 1;
     }
 
-    Ok(JsString::new(call.scope, "e2e4").unwrap())
+    ret.push_str(&"]");
+
+    Ok(JsString::new(call.scope, &ret).unwrap())
 }
 
 register_module!(m, {
     m.export("getMove", get_move)
 });
+
 ```
