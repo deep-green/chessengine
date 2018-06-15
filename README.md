@@ -6,17 +6,17 @@
 chess = "0.4.3"
 ```
 
-2. Zuggenerator einbinden
+2. `mov.rs` herunterladen und ins Hauptverzeichnis kopieren (`native/src`)
+
+3. Zuggenerator einbinden
     1. Importierung
     ```rust 
-    extern crate chess;
-    use chess::{ MoveGen, Board };
+    mod mov;
     ```
 
     2. Einbindung
     ```rust
-    let board = Board::from_fen(fen.to_owned()).unwrap();
-    let iterable = MoveGen::new(board, true);
+    mov::get_moves(fen);
     ```
     
 
