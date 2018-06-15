@@ -1,0 +1,7 @@
+[package]
+name = "chessengine"
+version = "0.1.0"
+authors = ["Patrick Reinke <patrick.reinke@fh-bielefeld.de>"]
+
+[dependencies]
+chess = "0.4"
